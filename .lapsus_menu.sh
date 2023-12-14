@@ -307,53 +307,6 @@ function atualizarSistema() {
 	sudo apt upgrade -y
 }
 
-function atualizarFirewall() {
-    #mover arquivos do diretorio raiz do lapsus para um novo diretorio /iptables
-    if [ ! -d /lapsus/iptables ]; then
-        mkdir /lapsus/iptables;
-        if [[ -f /lapsus/ips.sh ]]; then
-           mv /lapsus/ips.sh /lapsus/iptables/ips.sh;
-        fi
-        if [[ -f /lapsus/ips6.sh ]]; then
-           mv /lapsus/ips6.sh /lapsus/iptables/ips6.sh;
-        fi
-        if [[ -f /lapsus/firewall ]]; then
-            rm /lapsus/firewall;
-            rm /lapsus/firewall6;
-            rm /lapsus/iptables_opa.sh;
-        fi
-    fi
-
-    if [ ! -f /lapsus/iptables/ips.sh ]; then
-      true > /lapsus/iptables/ips.sh;
-    fi
-
-    if [ ! -f /lapsus/iptables/ips6.sh ]; then
-      true > /lapsus/iptables/ips6.sh;
-    fi
-
-    #atualizar firewall
-    cd /lapsus/iptables;
-	  curl -L -O -s https://sistema.ixcsoft.com.br/atualizacoes/lapsus/iptables_opa.sh;
-	  chmod +x iptables_opa.sh;
-	 ./iptables_opa.sh;
-
-	if [[ ! -f /etc/systemd/system/firewall.service ]]; then
-		touch /etc/systemd/system/firewall.service;
-        echo "[Unit]
-            Description=Firewall roles
-            After=default.target
-
-            [Service]
-            ExecStart=/lapsus/iptables/iptables_opa.sh
-            Restart=on-failure
-
-            [Install]
-            WantedBy=default.target" >> /etc/systemd/system/firewall.service;
-        systemctl enable firewall.service;
-	fi
-}
-
 function reiniciarServidor(){
 	submenu=0;
 	while [ $submenu -eq 0 ]; do
